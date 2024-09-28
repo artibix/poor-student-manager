@@ -1,0 +1,60 @@
+services:
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: ruoyi
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: 123456
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+      - ./mysql-config:/etc/mysql/conf.d
+    networks:
+      - ruoyi-network
+
+  redis:
+    image: redis:6.0
+    ports:
+      - "6379:6379"
+    networks:
+      - ruoyi-network
+
+  ruoyi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/usr/src/app
+    working_dir: /usr/src/app
+    command: ["sh", "-c", "mvn clean package -DskipTests && java -jar ruoyi-admin/target/ruoyi-admin.jar"]
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ruoyi-network
+
+  vue:
+    image: node:18
+    volumes:
+      - ./ruoyi-ui:/usr/src/app
+    working_dir: /usr/src/app
+    command: >
+      sh -c "yarn install --registry=https://registry.npmmirror.com && yarn dev"
+    ports:
+      - "80:80"
+    depends_on:
+      - ruoyi
+    networks:
+      - ruoyi-network
+
+volumes:
+  mysql_data:
+
+networks:
+  ruoyi-network:
+    driver: bridge
