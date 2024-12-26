@@ -83,6 +83,16 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  {
+    path: '/registration-student',
+    component: () => import('@/views/registration/student.vue'),
+    hidden: true
+  },
+  {
+    path: '/registration-teacher',
+    component: () => import('@/views/registration/teacher.vue'),
+    hidden: true
   }
 ]
 
