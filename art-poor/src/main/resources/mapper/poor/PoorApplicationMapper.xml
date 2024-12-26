@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.poor.mapper.PoorApplicationMapper">
+    
+    <resultMap type="PoorApplication" id="PoorApplicationResult">
+        <result property="id"    column="id"    />
+        <result property="studentId"    column="student_id"    />
+        <result property="applicationDate"    column="application_date"    />
+        <result property="povertyReason"    column="poverty_reason"    />
+        <result property="supportingDocuments"    column="supporting_documents"    />
+        <result property="status"    column="status"    />
+        <result property="reviewerId"    column="reviewer_id"    />
+        <result property="reviewDate"    column="review_date"    />
+        <result property="reviewComments"    column="review_comments"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPoorApplicationVo">
+        select id, student_id, application_date, poverty_reason, supporting_documents, status, reviewer_id, review_date, review_comments, create_time, update_time from poor_application
+    </sql>
+
+    <select id="selectPoorApplicationList" parameterType="PoorApplication" resultMap="PoorApplicationResult">
+        <include refid="selectPoorApplicationVo"/>
+        <where>  
+            <if test="studentId != null "> and student_id = #{studentId}</if>
+            <if test="applicationDate != null "> and application_date = #{applicationDate}</if>
+            <if test="povertyReason != null  and povertyReason != ''"> and poverty_reason = #{povertyReason}</if>
+            <if test="supportingDocuments != null  and supportingDocuments != ''"> and supporting_documents = #{supportingDocuments}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="reviewerId != null "> and reviewer_id = #{reviewerId}</if>
+            <if test="reviewDate != null "> and review_date = #{reviewDate}</if>
+            <if test="reviewComments != null  and reviewComments != ''"> and review_comments = #{reviewComments}</if>
+        </where>
+    </select>
+    
+    <select id="selectPoorApplicationById" parameterType="Long" resultMap="PoorApplicationResult">
+        <include refid="selectPoorApplicationVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertPoorApplication" parameterType="PoorApplication" useGeneratedKeys="true" keyProperty="id">
+        insert into poor_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="studentId != null">student_id,</if>
+            <if test="applicationDate != null">application_date,</if>
+            <if test="povertyReason != null">poverty_reason,</if>
+            <if test="supportingDocuments != null">supporting_documents,</if>
+            <if test="status != null">status,</if>
+            <if test="reviewerId != null">reviewer_id,</if>
+            <if test="reviewDate != null">review_date,</if>
+            <if test="reviewComments != null">review_comments,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="studentId != null">#{studentId},</if>
+            <if test="applicationDate != null">#{applicationDate},</if>
+            <if test="povertyReason != null">#{povertyReason},</if>
+            <if test="supportingDocuments != null">#{supportingDocuments},</if>
+            <if test="status != null">#{status},</if>
+            <if test="reviewerId != null">#{reviewerId},</if>
+            <if test="reviewDate != null">#{reviewDate},</if>
+            <if test="reviewComments != null">#{reviewComments},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePoorApplication" parameterType="PoorApplication">
+        update poor_application
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="applicationDate != null">application_date = #{applicationDate},</if>
+            <if test="povertyReason != null">poverty_reason = #{povertyReason},</if>
+            <if test="supportingDocuments != null">supporting_documents = #{supportingDocuments},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="reviewerId != null">reviewer_id = #{reviewerId},</if>
+            <if test="reviewDate != null">review_date = #{reviewDate},</if>
+            <if test="reviewComments != null">review_comments = #{reviewComments},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePoorApplicationById" parameterType="Long">
+        delete from poor_application where id = #{id}
+    </delete>
+
+    <delete id="deletePoorApplicationByIds" parameterType="String">
+        delete from poor_application where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

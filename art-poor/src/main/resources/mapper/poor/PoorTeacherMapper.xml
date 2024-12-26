@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.poor.mapper.PoorTeacherMapper">
+    
+    <resultMap type="PoorTeacher" id="PoorTeacherResult">
+        <result property="userId"    column="user_id"    />
+        <result property="number"    column="number"    />
+        <result property="position"    column="position"    />
+        <result property="hireDate"    column="hire_date"    />
+        <result property="level"    column="level"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isActivated"    column="is_activated"    />
+    </resultMap>
+
+    <sql id="selectPoorTeacherVo">
+        select user_id, number, position, hire_date, level, create_time, update_time, is_activated from poor_teacher
+    </sql>
+
+    <select id="selectPoorTeacherList" parameterType="PoorTeacher" resultMap="PoorTeacherResult">
+        <include refid="selectPoorTeacherVo"/>
+        <where>  
+            <if test="number != null  and number != ''"> and number = #{number}</if>
+            <if test="position != null  and position != ''"> and position = #{position}</if>
+            <if test="hireDate != null "> and hire_date = #{hireDate}</if>
+            <if test="level != null  and level != ''"> and level = #{level}</if>
+            <if test="isActivated != null "> and is_activated = #{isActivated}</if>
+        </where>
+    </select>
+    
+    <select id="selectPoorTeacherByUserId" parameterType="Long" resultMap="PoorTeacherResult">
+        <include refid="selectPoorTeacherVo"/>
+        where user_id = #{userId}
+    </select>
+
+    <insert id="insertPoorTeacher" parameterType="PoorTeacher">
+        insert into poor_teacher
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="number != null">number,</if>
+            <if test="position != null">position,</if>
+            <if test="hireDate != null">hire_date,</if>
+            <if test="level != null">level,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isActivated != null">is_activated,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="number != null">#{number},</if>
+            <if test="position != null">#{position},</if>
+            <if test="hireDate != null">#{hireDate},</if>
+            <if test="level != null">#{level},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isActivated != null">#{isActivated},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePoorTeacher" parameterType="PoorTeacher">
+        update poor_teacher
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="number != null">number = #{number},</if>
+            <if test="position != null">position = #{position},</if>
+            <if test="hireDate != null">hire_date = #{hireDate},</if>
+            <if test="level != null">level = #{level},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isActivated != null">is_activated = #{isActivated},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deletePoorTeacherByUserId" parameterType="Long">
+        delete from poor_teacher where user_id = #{userId}
+    </delete>
+
+    <delete id="deletePoorTeacherByUserIds" parameterType="String">
+        delete from poor_teacher where user_id in 
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>
