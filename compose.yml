@@ -29,7 +29,7 @@ services:
     volumes:
       - ./:/usr/src/app
     working_dir: /usr/src/app
-    command: ["sh", "-c", "mvn clean install -pl art-poor -am && mvn clean package -DskipTests && java -jar ruoyi-admin/target/ruoyi-admin.jar"]
+    command: ["sh", "-c", "mvn clean package -DskipTests && java -jar ruoyi-admin/target/ruoyi-admin.jar"]
     ports:
       - "8080:8080"
     depends_on:
@@ -58,3 +58,7 @@ volumes:
 networks:
   ruoyi-network:
     driver: bridge
+
+configs:
+  mysql_config:
+    file: ./mysql-config/my.cnf
