@@ -1,6 +1,8 @@
 package com.ruoyi.poor.mapper;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.poor.domain.PoorApplication;
 
 /**
@@ -9,7 +11,7 @@ import com.ruoyi.poor.domain.PoorApplication;
  * @author art
  * @date 2024-10-06
  */
-public interface PoorApplicationMapper 
+public interface PoorApplicationMapper
 {
     /**
      * 查询贫困申请
@@ -58,4 +60,8 @@ public interface PoorApplicationMapper
      * @return 结果
      */
     public int deletePoorApplicationByIds(Long[] ids);
-}
+
+    /**
+     * 查询申请统计信息
+     */
+    List<Map<String, Object>> selectApplicationStats();}

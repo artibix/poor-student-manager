@@ -501,7 +501,7 @@ export default {
         if (valid) {
           this.form.reviewerId = userStore.id;
           if (!this.form.id) {
-            this.form.status = "待审核"; // 使用中文状态
+            this.form.status = "待审核";
           }
 
           if (this.form.id != null) {

@@ -1,6 +1,8 @@
 package com.ruoyi.poor.mapper;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.poor.domain.PoorFinancial;
 
 /**
@@ -58,4 +60,19 @@ public interface PoorFinancialMapper
      * @return 结果
      */
     public int deletePoorFinancialByIds(Long[] ids);
+
+    /**
+     * 查询各学院资助统计
+     */
+    List<Map<String, Object>> selectCollegeStats();
+
+    /**
+     * 查询月度资助金额
+     */
+    List<Map<String, Object>> selectMonthlyAmount();
+
+    /**
+     * 查询资助类型分布
+     */
+    List<Map<String, Object>> selectAidTypeStats();
 }

@@ -1,6 +1,8 @@
 package com.ruoyi.poor.service.impl;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -92,5 +94,20 @@ public class PoorFinancialServiceImpl implements IPoorFinancialService
     public int deletePoorFinancialById(Long id)
     {
         return poorFinancialMapper.deletePoorFinancialById(id);
+    }
+
+    @Override
+    public List<Map<String, Object>> getCollegeStats() {
+        return poorFinancialMapper.selectCollegeStats();
+    }
+
+    @Override
+    public List<Map<String, Object>> getMonthlyAmount() {
+        return poorFinancialMapper.selectMonthlyAmount();
+    }
+
+    @Override
+    public List<Map<String, Object>> getAidTypeStats() {
+        return poorFinancialMapper.selectAidTypeStats();
     }
 }

@@ -96,4 +96,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
+    <select id="selectCollegeStats" resultType="java.util.Map">
+        SELECT
+            ps.college,
+            COUNT(DISTINCT pf.student_id) as student_count,
+            SUM(pf.aid_amount) as total_amount
+        FROM poor_financial pf
+                 JOIN poor_student ps ON pf.student_id = ps.user_id
+        GROUP BY ps.college
+    </select>
+
+    <select id="selectMonthlyAmount" resultType="java.util.Map">
+        SELECT
+            DATE_FORMAT(grant_date, '%Y-%m') as month,
+            SUM(aid_amount) as amount
+        FROM poor_financial
+        WHERE grant_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+        GROUP BY DATE_FORMAT(grant_date, '%Y-%m')
+        ORDER BY month
+    </select>
+
+    <select id="selectAidTypeStats" resultType="java.util.Map">
+        SELECT
+            aid_type,
+            COUNT(*) as count,
+            SUM(aid_amount) as total_amount
+        FROM poor_financial
+        GROUP BY aid_type
+    </select>
 </mapper>

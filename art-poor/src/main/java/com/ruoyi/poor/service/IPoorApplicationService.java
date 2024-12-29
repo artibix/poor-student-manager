@@ -1,6 +1,8 @@
 package com.ruoyi.poor.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.poor.domain.PoorApplication;
 
 /**
@@ -60,4 +62,10 @@ public interface IPoorApplicationService
     public int deletePoorApplicationById(Long id);
 
     int reviewPoorApplication(PoorApplication poorApplication);
+
+
+    /**
+     * 获取申请统计信息
+     */
+    Map<String, Long> getApplicationStats();
 }

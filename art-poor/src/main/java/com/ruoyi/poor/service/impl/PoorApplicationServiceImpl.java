@@ -1,6 +1,8 @@
 package com.ruoyi.poor.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
@@ -157,5 +159,29 @@ public class PoorApplicationServiceImpl implements IPoorApplicationService
         updateApplication.setUpdateTime(DateUtils.getNowDate());
 
         return poorApplicationMapper.updatePoorApplication(updateApplication);
+    }
+
+    @Override
+    public Map<String, Long> getApplicationStats() {
+        Map<String, Long> stats = new HashMap<>();
+        List<Map<String, Object>> rawStats = poorApplicationMapper.selectApplicationStats();
+
+        // 初始化所有状态的计数
+        stats.put("total", 0L);
+        stats.put("待审核", 0L);
+        stats.put("已通过", 0L);
+        stats.put("已拒绝", 0L);
+
+        // 处理查询结果
+        long total = 0;
+        for (Map<String, Object> stat : rawStats) {
+            String status = (String) stat.get("status");
+            Long count = ((Number) stat.get("count")).longValue();
+            stats.put(status, count);
+            total += count;
+        }
+        stats.put("total", total);
+
+        return stats;
     }
 }

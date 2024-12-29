@@ -1,6 +1,8 @@
 package com.ruoyi.poor.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.poor.domain.PoorFinancial;
 
 /**
@@ -58,4 +60,19 @@ public interface IPoorFinancialService
      * @return 结果
      */
     public int deletePoorFinancialById(Long id);
+
+    /**
+     * 获取各学院资助统计
+     */
+    List<Map<String, Object>> getCollegeStats();
+
+    /**
+     * 获取月度资助金额
+     */
+    List<Map<String, Object>> getMonthlyAmount();
+
+    /**
+     * 获取资助类型分布
+     */
+    List<Map<String, Object>> getAidTypeStats();
 }
