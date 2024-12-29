@@ -14,8 +14,8 @@
 1. 克隆本仓库到本地：
 
    ```bash
-   git clone https://github.com/artibix/ruoyi-vue-docker-compose.git
-   cd ruoyi-vue-docker-compose
+   git clone https://github.com/artibix/poor-student-manager.git
+   cd poor-student-manager
    ```
 
 2. 根据需要修改 `compose.yml` 文件中的环境变量。修改时需要同步修改 ruoyi 的配置文件
