@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <resultMap type="PoorStudent" id="PoorStudentResult">
         <result property="userId"    column="user_id"    />
+        <result property="userName"     column="user_name"      />
         <result property="number"    column="number"    />
         <result property="college"    column="college"    />
         <result property="major"    column="major"    />
@@ -18,25 +19,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectPoorStudentVo">
-        select user_id, number, college, major, grade, family_address, family_income, create_time, update_time, is_activated from poor_student
+        select p.user_id, p.number, p.college, p.major, p.grade,
+               p.family_address, p.family_income, p.create_time,
+               p.update_time, p.is_activated, u.user_name
+        from poor_student p
+                 left join sys_user u on p.user_id = u.user_id
     </sql>
 
     <select id="selectPoorStudentList" parameterType="PoorStudent" resultMap="PoorStudentResult">
         <include refid="selectPoorStudentVo"/>
-        <where>  
-            <if test="number != null  and number != ''"> and number = #{number}</if>
-            <if test="college != null  and college != ''"> and college = #{college}</if>
-            <if test="major != null  and major != ''"> and major = #{major}</if>
-            <if test="grade != null  and grade != ''"> and grade = #{grade}</if>
-            <if test="familyAddress != null  and familyAddress != ''"> and family_address = #{familyAddress}</if>
-            <if test="familyIncome != null "> and family_income = #{familyIncome}</if>
-            <if test="isActivated != null "> and is_activated = #{isActivated}</if>
+        <where>
+            <if test="number != null and number != ''"> and p.number = #{number}</if>
+            <if test="college != null and college != ''"> and p.college = #{college}</if>
+            <if test="major != null and major != ''"> and p.major = #{major}</if>
+            <if test="grade != null and grade != ''"> and p.grade = #{grade}</if>
+            <if test="familyAddress != null and familyAddress != ''"> and p.family_address = #{familyAddress}</if>
+            <if test="familyIncome != null"> and p.family_income = #{familyIncome}</if>
+            <if test="isActivated != null"> and p.is_activated = #{isActivated}</if>
+            <if test="userName != null and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
         </where>
     </select>
-    
+
     <select id="selectPoorStudentByUserId" parameterType="Long" resultMap="PoorStudentResult">
         <include refid="selectPoorStudentVo"/>
-        where user_id = #{userId}
+        where p.user_id = #{userId}
     </select>
 
     <insert id="insertPoorStudent" parameterType="PoorStudent">

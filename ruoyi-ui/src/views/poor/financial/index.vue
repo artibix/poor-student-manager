@@ -1,36 +1,44 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="学生id" prop="studentId">
+      <el-form-item label="学生姓名" prop="studentName">
         <el-input
-          v-model="queryParams.studentId"
-          placeholder="请输入学生id"
-          clearable
-          @keyup.enter.native="handleQuery"
+            v-model="queryParams.studentName"
+            placeholder="请输入学姓名"
+            clearable
+            @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="操作人id" prop="userId">
+      <el-form-item label="操作人姓名" prop="userName">
         <el-input
-          v-model="queryParams.userId"
-          placeholder="请输入操作人id"
-          clearable
-          @keyup.enter.native="handleQuery"
+            v-model="queryParams.userName"
+            placeholder="请输入操作人姓名"
+            clearable
+            @keyup.enter.native="handleQuery"
         />
       </el-form-item>
       <el-form-item label="资助金额" prop="aidAmount">
         <el-input
-          v-model="queryParams.aidAmount"
-          placeholder="请输入资助金额"
-          clearable
-          @keyup.enter.native="handleQuery"
+            v-model="queryParams.aidAmount"
+            placeholder="请输入资助金额"
+            clearable
+            @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="资助类型" prop="aidType">
+        <el-input
+            v-model="queryParams.aidType"
+            placeholder="请输入资助类型"
+            clearable
+            @keyup.enter.native="handleQuery"
         />
       </el-form-item>
       <el-form-item label="发放日期" prop="grantDate">
         <el-date-picker clearable
-          v-model="queryParams.grantDate"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择发放日期">
+                        v-model="queryParams.grantDate"
+                        type="date"
+                        value-format="YYYY-MM-DD"
+                        placeholder="请选择发放日期">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -42,108 +50,120 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
-          type="primary"
-          plain
-          icon="plus"
-          size="default"
-          @click="handleAdd"
-          v-hasPermi="['poor:financial:add']"
-        >新增</el-button>
+            type="primary"
+            plain
+            icon="plus"
+            size="default"
+            @click="handleAdd"
+            v-hasPermi="['poor:financial:add']"
+        >新增
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
-          type="success"
-          plain
-          icon="edit"
-          size="default"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['poor:financial:edit']"
-        >修改</el-button>
+            type="success"
+            plain
+            icon="edit"
+            size="default"
+            :disabled="single"
+            @click="handleUpdate"
+            v-hasPermi="['poor:financial:edit']"
+        >修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
-          type="danger"
-          plain
-          icon="delete"
-          size="default"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['poor:financial:remove']"
-        >删除</el-button>
+            type="danger"
+            plain
+            icon="delete"
+            size="default"
+            :disabled="multiple"
+            @click="handleDelete"
+            v-hasPermi="['poor:financial:remove']"
+        >删除
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
-          type="warning"
-          plain
-          icon="download"
-          size="default"
-          @click="handleExport"
-          v-hasPermi="['poor:financial:export']"
-        >导出</el-button>
+            type="warning"
+            plain
+            icon="download"
+            size="default"
+            @click="handleExport"
+            v-hasPermi="['poor:financial:export']"
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="financialList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="资助ID" align="center" prop="id" />
-      <el-table-column label="学生id" align="center" prop="studentId" />
-      <el-table-column label="操作人id" align="center" prop="userId" />
-      <el-table-column label="资助类型" align="center" prop="aidType" />
-      <el-table-column label="资助金额" align="center" prop="aidAmount" />
+      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="学生姓名" align="center" prop="studentName"/>
+      <el-table-column label="操作人姓名" align="center" prop="userName"/>
+      <el-table-column label="资助类型" align="center" prop="aidType"/>
+      <el-table-column label="资助金额" align="center" prop="aidAmount"/>
       <el-table-column label="发放日期" align="center" prop="grantDate" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.grantDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="发放状态" align="center" prop="grantStatus" />
+      <el-table-column label="发放状态" align="center" prop="grantStatus"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button
-            size="default"
-            type="text"
-            icon="edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['poor:financial:edit']"
-          >修改</el-button>
+              size="default"
+              type="text"
+              icon="edit"
+              @click="handleUpdate(scope.row)"
+              v-hasPermi="['poor:financial:edit']"
+          >修改
+          </el-button>
           <el-button
-            size="default"
-            type="text"
-            icon="delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['poor:financial:remove']"
-          >删除</el-button>
+              size="default"
+              type="text"
+              icon="delete"
+              @click="handleDelete(scope.row)"
+              v-hasPermi="['poor:financial:remove']"
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
+        v-show="total>0"
+        :total="total"
+        :page.sync="queryParams.pageNum"
+        :limit.sync="queryParams.pageSize"
+        @pagination="getList"
     />
 
     <!-- 添加或修改贫困资助对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="学生id" prop="studentId">
-          <el-input v-model="form.studentId" placeholder="请输入学生id" />
-        </el-form-item>
-        <el-form-item label="操作人id" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入操作人id" />
+        <el-form-item label="学生" prop="studentId">
+          <el-select v-model="form.studentId" placeholder="请选择学生" clearable>
+            <el-option
+                v-for="student in studentOptions"
+                :key="student.userId"
+                :label="student.userName"
+                :value="student.userId"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="资助金额" prop="aidAmount">
-          <el-input v-model="form.aidAmount" placeholder="请输入资助金额" />
+          <el-input v-model="form.aidAmount" placeholder="请输入资助金额"/>
+        </el-form-item>
+        <el-form-item label="资助类型" prop="aidType">
+          <el-input v-model="form.aidType" placeholder="请输入资助类型"/>
         </el-form-item>
         <el-form-item label="发放日期" prop="grantDate">
           <el-date-picker clearable
-            v-model="form.grantDate"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="请选择发放日期">
+                          v-model="form.grantDate"
+                          type="date"
+                          value-format="YYYY-MM-DD"
+                          placeholder="请选择发放日期">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -156,7 +176,11 @@
 </template>
 
 <script>
-import { listFinancial, getFinancial, delFinancial, addFinancial, updateFinancial } from "@/api/poor/financial";
+import {listFinancial, getFinancial, delFinancial, addFinancial, updateFinancial} from "@/api/poor/financial";
+import {listStudent} from "@/api/poor/student.js";
+import useUserStore from "@/store/modules/user.js";
+
+const userStore = useUserStore();
 
 export default {
   name: "Financial",
@@ -184,6 +208,8 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        userName: null,
+        studentName: null,
         studentId: null,
         userId: null,
         aidType: null,
@@ -193,16 +219,17 @@ export default {
       },
       // 表单参数
       form: {},
-      // 表单校验
+      studentOptions: [],
       rules: {
         studentId: [
-          { required: true, message: "学生id不能为空", trigger: "blur" }
+          {required: true, message: "请选择学生", trigger: "change"}
         ],
       }
     };
   },
   created() {
     this.getList();
+    this.getStudentOptions();
   },
   methods: {
     /** 查询贫困资助列表 */
@@ -214,6 +241,13 @@ export default {
         this.loading = false;
       });
     },
+
+    getStudentOptions() {
+      listStudent().then(response => {
+        this.studentOptions = response.rows;
+      });
+    },
+
     // 取消按钮
     cancel() {
       this.open = false;
@@ -224,7 +258,7 @@ export default {
       this.form = {
         id: null,
         studentId: null,
-        userId: null,
+        userId: userStore.id,
         aidType: null,
         aidAmount: null,
         grantDate: null,
@@ -247,7 +281,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -270,6 +304,7 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          this.form.userId = userStore.id;
           if (this.form.id != null) {
             updateFinancial(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
@@ -289,12 +324,13 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除贫困资助编号为"' + ids + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除贫困资助编号为"' + ids + '"的数据项？').then(function () {
         return delFinancial(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
+      }).catch(() => {
+      });
     },
     /** 导出按钮操作 */
     handleExport() {

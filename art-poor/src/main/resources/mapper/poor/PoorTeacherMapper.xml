@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <resultMap type="PoorTeacher" id="PoorTeacherResult">
         <result property="userId"    column="user_id"    />
+        <result property="userName"  column="user_name"  />
         <result property="number"    column="number"    />
         <result property="position"    column="position"    />
         <result property="hireDate"    column="hire_date"    />
@@ -16,23 +17,27 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectPoorTeacherVo">
-        select user_id, number, position, hire_date, level, create_time, update_time, is_activated from poor_teacher
+        select t.user_id, t.number, t.position, t.hire_date, t.level,
+               t.create_time, t.update_time, t.is_activated, u.user_name
+        from poor_teacher t
+                 left join sys_user u on t.user_id = u.user_id
     </sql>
 
     <select id="selectPoorTeacherList" parameterType="PoorTeacher" resultMap="PoorTeacherResult">
         <include refid="selectPoorTeacherVo"/>
-        <where>  
-            <if test="number != null  and number != ''"> and number = #{number}</if>
-            <if test="position != null  and position != ''"> and position = #{position}</if>
-            <if test="hireDate != null "> and hire_date = #{hireDate}</if>
-            <if test="level != null  and level != ''"> and level = #{level}</if>
-            <if test="isActivated != null "> and is_activated = #{isActivated}</if>
+        <where>
+            <if test="number != null and number != ''"> and t.number = #{number}</if>
+            <if test="position != null and position != ''"> and t.position = #{position}</if>
+            <if test="hireDate != null"> and t.hire_date = #{hireDate}</if>
+            <if test="level != null and level != ''"> and t.level = #{level}</if>
+            <if test="isActivated != null"> and t.is_activated = #{isActivated}</if>
+            <if test="userName != null and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
         </where>
     </select>
-    
+
     <select id="selectPoorTeacherByUserId" parameterType="Long" resultMap="PoorTeacherResult">
         <include refid="selectPoorTeacherVo"/>
-        where user_id = #{userId}
+        where t.user_id = #{userId}
     </select>
 
     <insert id="insertPoorTeacher" parameterType="PoorTeacher">

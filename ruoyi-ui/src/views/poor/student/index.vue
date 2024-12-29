@@ -41,22 +41,14 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="家庭年收入" prop="familyIncome">
-        <el-input
-          v-model="queryParams.familyIncome"
-          placeholder="请输入家庭年收入"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="是否激活" prop="isActivated">
-        <el-input
-          v-model="queryParams.isActivated"
-          placeholder="请输入是否激活"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="是否激活" prop="isActivated">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.isActivated"-->
+<!--          placeholder="请输入是否激活"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="search" size="default" @click="handleQuery">搜索</el-button>
         <el-button icon="refresh" size="default" @click="resetQuery">重置</el-button>
@@ -111,14 +103,14 @@
 
     <el-table v-loading="loading" :data="studentList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="用户id" align="center" prop="userId" />
+      <el-table-column label="姓名" align="center" prop="userName" />
       <el-table-column label="学号" align="center" prop="number" />
       <el-table-column label="学院" align="center" prop="college" />
       <el-table-column label="专业" align="center" prop="major" />
       <el-table-column label="年级" align="center" prop="grade" />
       <el-table-column label="家庭住址" align="center" prop="familyAddress" />
-      <el-table-column label="家庭年收入" align="center" prop="familyInco me" />
-      <el-table-column label="是否激活" align="center" prop="isActivated" />
+      <el-table-column label="家庭年收入" align="center" prop="familyIncome" />
+<!--      <el-table-column label="是否激活" align="center" prop="isActivated" />-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button
@@ -168,9 +160,9 @@
         <el-form-item label="家庭年收入" prop="familyIncome">
           <el-input v-model="form.familyIncome" placeholder="请输入家庭年收入" />
         </el-form-item>
-        <el-form-item label="是否激活" prop="isActivated">
-          <el-input v-model="form.isActivated" placeholder="请输入是否激活" />
-        </el-form-item>
+<!--        <el-form-item label="是否激活" prop="isActivated">-->
+<!--          <el-input v-model="form.isActivated" placeholder="请输入是否激活" />-->
+<!--        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>

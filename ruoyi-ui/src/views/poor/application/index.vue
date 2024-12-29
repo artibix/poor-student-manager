@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="学生id" prop="studentId">
+      <el-form-item label="学生姓名" prop="studentName">
         <el-input
-          v-model="queryParams.studentId"
-          placeholder="请输入学生id"
+          v-model="queryParams.studentName"
+          placeholder="请输入学生姓名"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -17,10 +17,10 @@
           placeholder="请选择申请日期">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="审核人ID" prop="reviewerId">
+      <el-form-item label="审核人姓名" prop="reviewerName">
         <el-input
           v-model="queryParams.reviewerId"
-          placeholder="请输入审核人ID"
+          placeholder="请输入审核人姓名"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -87,8 +87,7 @@
 
     <el-table v-loading="loading" :data="applicationList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="申请ID" align="center" prop="id" />
-      <el-table-column label="学生id" align="center" prop="studentId" />
+      <el-table-column label="学生姓名" align="center" prop="studentName" />
       <el-table-column label="申请日期" align="center" prop="applicationDate" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.applicationDate, '{y}-{m}-{d}') }}</span>
@@ -97,7 +96,7 @@
       <el-table-column label="贫困原因" align="center" prop="povertyReason" />
       <el-table-column label="证明材料" align="center" prop="supportingDocuments" />
       <el-table-column label="审核状态" align="center" prop="status" />
-      <el-table-column label="审核人ID" align="center" prop="reviewerId" />
+      <el-table-column label="审核人" align="center" prop="reviewerName" />
       <el-table-column label="审核日期" align="center" prop="reviewDate" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.reviewDate, '{y}-{m}-{d}') }}</span>
@@ -135,8 +134,15 @@
     <!-- 添加或修改贫困申请对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="学生id" prop="studentId">
-          <el-input v-model="form.studentId" placeholder="请输入学生id" />
+        <el-form-item label="学生" prop="studentId">
+          <el-select v-model="form.studentId" placeholder="请选择学生" clearable>
+            <el-option
+                v-for="student in studentOptions"
+                :key="student.userId"
+                :label="student.userName"
+                :value="student.userId"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="申请日期" prop="applicationDate">
           <el-date-picker clearable
@@ -151,9 +157,6 @@
         </el-form-item>
         <el-form-item label="证明材料" prop="supportingDocuments">
           <el-input v-model="form.supportingDocuments" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="审核人ID" prop="reviewerId">
-          <el-input v-model="form.reviewerId" placeholder="请输入审核人ID" />
         </el-form-item>
         <el-form-item label="审核日期" prop="reviewDate">
           <el-date-picker clearable
@@ -177,6 +180,10 @@
 
 <script>
 import { listApplication, getApplication, delApplication, addApplication, updateApplication } from "@/api/poor/application";
+import {listStudent} from "@/api/poor/student.js";
+import useUserStore from "@/store/modules/user.js";
+
+const userStore = useUserStore();
 
 export default {
   name: "Application",
@@ -204,29 +211,36 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        studentId: null,
+        studentName: null,
         applicationDate: null,
         povertyReason: null,
         supportingDocuments: null,
         status: null,
-        reviewerId: null,
+        reviewerName: null,
         reviewDate: null,
         reviewComments: null,
       },
       // 表单参数
       form: {},
       // 表单校验
+      studentOptions: [],
       rules: {
         studentId: [
-          { required: true, message: "学生id不能为空", trigger: "blur" }
+          {required: true, message: "请选择学生", trigger: "change"}
         ],
       }
     };
   },
   created() {
     this.getList();
+    this.getStudentOptions();
   },
   methods: {
+    getStudentOptions() {
+      listStudent().then(response => {
+        this.studentOptions = response.rows;
+      });
+    },
     /** 查询贫困申请列表 */
     getList() {
       this.loading = true;
@@ -294,6 +308,8 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          this.form.reviewerId = userStore.id;
+
           if (this.form.id != null) {
             updateApplication(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");

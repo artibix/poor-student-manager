@@ -3,15 +3,17 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.poor.mapper.PoorApplicationMapper">
-    
+
     <resultMap type="PoorApplication" id="PoorApplicationResult">
         <result property="id"    column="id"    />
         <result property="studentId"    column="student_id"    />
+        <result property="studentName"  column="student_name"  />
         <result property="applicationDate"    column="application_date"    />
         <result property="povertyReason"    column="poverty_reason"    />
         <result property="supportingDocuments"    column="supporting_documents"    />
         <result property="status"    column="status"    />
         <result property="reviewerId"    column="reviewer_id"    />
+        <result property="reviewerName"  column="reviewer_name"  />
         <result property="reviewDate"    column="review_date"    />
         <result property="reviewComments"    column="review_comments"    />
         <result property="createTime"    column="create_time"    />
@@ -19,26 +21,35 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectPoorApplicationVo">
-        select id, student_id, application_date, poverty_reason, supporting_documents, status, reviewer_id, review_date, review_comments, create_time, update_time from poor_application
+        select a.id, a.student_id, a.application_date, a.poverty_reason,
+               a.supporting_documents, a.status, a.reviewer_id, a.review_date,
+               a.review_comments, a.create_time, a.update_time,
+               s.user_name as student_name,
+               t.user_name as reviewer_name
+        from poor_application a
+                 left join sys_user s on a.student_id = s.user_id
+                 left join sys_user t on a.reviewer_id = t.user_id
     </sql>
 
     <select id="selectPoorApplicationList" parameterType="PoorApplication" resultMap="PoorApplicationResult">
         <include refid="selectPoorApplicationVo"/>
-        <where>  
-            <if test="studentId != null "> and student_id = #{studentId}</if>
-            <if test="applicationDate != null "> and application_date = #{applicationDate}</if>
-            <if test="povertyReason != null  and povertyReason != ''"> and poverty_reason = #{povertyReason}</if>
-            <if test="supportingDocuments != null  and supportingDocuments != ''"> and supporting_documents = #{supportingDocuments}</if>
-            <if test="status != null  and status != ''"> and status = #{status}</if>
-            <if test="reviewerId != null "> and reviewer_id = #{reviewerId}</if>
-            <if test="reviewDate != null "> and review_date = #{reviewDate}</if>
-            <if test="reviewComments != null  and reviewComments != ''"> and review_comments = #{reviewComments}</if>
+        <where>
+            <if test="studentId != null "> and a.student_id = #{studentId}</if>
+            <if test="applicationDate != null "> and a.application_date = #{applicationDate}</if>
+            <if test="povertyReason != null  and povertyReason != ''"> and a.poverty_reason = #{povertyReason}</if>
+            <if test="supportingDocuments != null  and supportingDocuments != ''"> and a.supporting_documents = #{supportingDocuments}</if>
+            <if test="status != null  and status != ''"> and a.status = #{status}</if>
+            <if test="reviewerId != null "> and a.reviewer_id = #{reviewerId}</if>
+            <if test="reviewDate != null "> and a.review_date = #{reviewDate}</if>
+            <if test="reviewComments != null  and reviewComments != ''"> and a.review_comments = #{reviewComments}</if>
+            <if test="studentName != null and studentName != ''"> and s.user_name like concat('%', #{studentName}, '%')</if>
+            <if test="reviewerName != null and reviewerName != ''"> and t.user_name like concat('%', #{reviewerName}, '%')</if>
         </where>
     </select>
-    
+
     <select id="selectPoorApplicationById" parameterType="Long" resultMap="PoorApplicationResult">
         <include refid="selectPoorApplicationVo"/>
-        where id = #{id}
+        where a.id = #{id}
     </select>
 
     <insert id="insertPoorApplication" parameterType="PoorApplication" useGeneratedKeys="true" keyProperty="id">
