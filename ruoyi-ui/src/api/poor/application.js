@@ -42,3 +42,11 @@ export function delApplication(id) {
     method: 'delete'
   })
 }
+
+export function reviewApplication(data) {
+  return request({
+    url: '/poor/application/review',
+    method: 'put',
+    data: data
+  })
+}

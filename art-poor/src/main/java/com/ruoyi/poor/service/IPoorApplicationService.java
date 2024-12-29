@@ -58,4 +58,6 @@ public interface IPoorApplicationService
      * @return 结果
      */
     public int deletePoorApplicationById(Long id);
+
+    int reviewPoorApplication(PoorApplication poorApplication);
 }

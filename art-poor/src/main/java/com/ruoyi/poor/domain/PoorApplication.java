@@ -3,10 +3,12 @@ package com.ruoyi.poor.domain;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 贫困申请对象 poor_application
@@ -53,11 +55,14 @@ public class PoorApplication extends BaseEntity {
     @Excel(name = "贫困原因")
     private String povertyReason;
 
-    /**
-     * 证明材料
-     */
+
     @Excel(name = "证明材料")
     private String supportingDocuments;
+
+    // 新增非持久化字段，用于文件上传
+    @Excel(name = "证明材料", type = Excel.Type.IMPORT)
+    @JsonIgnore
+    private MultipartFile supportingFile;
 
     /**
      * 审核状态
@@ -189,5 +194,13 @@ public class PoorApplication extends BaseEntity {
 
     public void setReviewerName(String reviewerName) {
         this.reviewerName = reviewerName;
+    }
+
+    public MultipartFile getSupportingFile() {
+        return supportingFile;
+    }
+
+    public void setSupportingFile(MultipartFile supportingFile) {
+        this.supportingFile = supportingFile;
     }
 }

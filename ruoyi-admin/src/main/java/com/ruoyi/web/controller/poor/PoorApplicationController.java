@@ -1,5 +1,6 @@
 package com.ruoyi.web.controller.poor;
 
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
@@ -101,5 +102,20 @@ public class PoorApplicationController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(poorApplicationService.deletePoorApplicationByIds(ids));
+    }
+
+    /**
+     * 审核贫困申请
+     */
+    @PreAuthorize("@ss.hasPermi('poor:application:review')")
+    @Log(title = "贫困申请审核", businessType = BusinessType.UPDATE)
+    @PutMapping("/review")
+    public AjaxResult review(@RequestBody PoorApplication poorApplication)
+    {
+        // 设置当前用户为审核人
+        poorApplication.setReviewerId(getUserId());
+        // 设置审核日期为当前日期
+        poorApplication.setReviewDate(new Date());
+        return toAjax(poorApplicationService.reviewPoorApplication(poorApplication));
     }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.poor.mapper.PoorApplicationMapper">
 
     <resultMap type="PoorApplication" id="PoorApplicationResult">
@@ -65,7 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reviewComments != null">review_comments,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateTime != null">update_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="studentId != null">#{studentId},</if>
             <if test="applicationDate != null">#{applicationDate},</if>
@@ -77,7 +77,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reviewComments != null">#{reviewComments},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updatePoorApplication" parameterType="PoorApplication">
@@ -91,7 +91,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reviewerId != null">reviewer_id = #{reviewerId},</if>
             <if test="reviewDate != null">review_date = #{reviewDate},</if>
             <if test="reviewComments != null">review_comments = #{reviewComments},</if>
-            <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
         </trim>
         where id = #{id}
@@ -102,7 +101,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deletePoorApplicationByIds" parameterType="String">
-        delete from poor_application where id in 
+        delete from poor_application where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

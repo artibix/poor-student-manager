@@ -94,8 +94,30 @@
         </template>
       </el-table-column>
       <el-table-column label="贫困原因" align="center" prop="povertyReason" />
-      <el-table-column label="证明材料" align="center" prop="supportingDocuments" />
-      <el-table-column label="审核状态" align="center" prop="status" />
+      <el-table-column label="证明材料" align="center" prop="supportingDocuments">
+        <template #default="scope">
+          <div v-if="scope.row.supportingDocuments">
+            <el-link
+                v-for="(file, index) in scope.row.supportingDocuments.split(',')"
+                :key="index"
+                type="primary"
+                :href="baseUrl + file"
+                target="_blank"
+                style="margin-right: 10px"
+            >
+              附件{{ index + 1 }}
+            </el-link>
+          </div>
+          <span v-else>无</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="审核状态" align="center" prop="status">
+        <template #default="scope">
+          <el-tag :type="scope.row.status === '已通过' ? 'success' : scope.row.status === '已拒绝' ? 'danger' : 'info'">
+            {{ scope.row.status }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="审核人" align="center" prop="reviewerName" />
       <el-table-column label="审核日期" align="center" prop="reviewDate" width="180">
         <template #default="scope">
@@ -105,6 +127,13 @@
       <el-table-column label="审核意见" align="center" prop="reviewComments" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
+          <el-button
+              size="default"
+              type="text"
+              icon="view"
+              @click="handleReview(scope.row)"
+              v-hasPermi="['poor:application:review']"
+          >审核</el-button>
           <el-button
             size="default"
             type="text"
@@ -156,18 +185,22 @@
           <el-input v-model="form.povertyReason" type="textarea" placeholder="请输入内容" />
         </el-form-item>
         <el-form-item label="证明材料" prop="supportingDocuments">
-          <el-input v-model="form.supportingDocuments" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="审核日期" prop="reviewDate">
-          <el-date-picker clearable
-            v-model="form.reviewDate"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="请选择审核日期">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="审核意见" prop="reviewComments">
-          <el-input v-model="form.reviewComments" type="textarea" placeholder="请输入内容" />
+          <!-- 文件上传组件 -->
+          <el-upload
+              :file-list="fileList"
+              :action="uploadUrl"
+              :before-upload="handleBeforeUpload"
+              :on-success="handleUploadSuccess"
+              :on-remove="handleRemove"
+              multiple
+              :headers="headers"
+              :limit="5"
+          >
+            <el-button type="primary">选择文件</el-button>
+            <template #tip>
+              <div class="el-upload__tip">只能上传 jpg/png/pdf 文件，且不超过 10MB</div>
+            </template>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -175,13 +208,50 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 审核对话框 -->
+    <el-dialog :title="'申请审核'" v-model="reviewOpen" width="500px" append-to-body>
+      <el-form ref="reviewForm" :model="reviewForm" :rules="reviewRules" label-width="100px">
+        <el-form-item label="审核状态" prop="status">
+          <el-select v-model="reviewForm.status" placeholder="请选择审核状态">
+            <el-option
+                v-for="item in statusOptions.filter(item => item.value !== '0')"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="审核意见" prop="reviewComments">
+          <el-input
+              v-model="reviewForm.reviewComments"
+              type="textarea"
+              placeholder="请输入审核意见"
+              maxlength="500"
+              show-word-limit
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitReview">确 定</el-button>
+        <el-button @click="cancelReview">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { listApplication, getApplication, delApplication, addApplication, updateApplication } from "@/api/poor/application";
+import {
+  listApplication,
+  getApplication,
+  delApplication,
+  addApplication,
+  updateApplication,
+  reviewApplication
+} from "@/api/poor/application";
 import {listStudent} from "@/api/poor/student.js";
 import useUserStore from "@/store/modules/user.js";
+import {getToken} from "@/utils/auth.js";
 
 const userStore = useUserStore();
 
@@ -224,18 +294,125 @@ export default {
       form: {},
       // 表单校验
       studentOptions: [],
+      uploadUrl: import.meta.env.VITE_APP_BASE_API + "/common/upload", // 上传文件服务器地址
+      headers: {
+        Authorization: 'Bearer ' + getToken()
+      },
+      fileList: [],
+      // 修改表单规则
       rules: {
         studentId: [
-          {required: true, message: "请选择学生", trigger: "change"}
+          { required: true, message: "请选择学生", trigger: "change" }
         ],
-      }
+        supportingDocuments: [
+          { required: true, message: "请上传证明材料", trigger: "change" }
+        ]
+      },
+      baseUrl: import.meta.env.VITE_APP_BASE_API,
+
+      reviewOpen: false,
+      reviewForm: {
+        id: null,
+        status: '',
+        reviewComments: '',
+        reviewerId: null,
+        reviewDate: null
+      },
+      reviewRules: {
+        status: [
+          { required: true, message: "请选择审核状态", trigger: "change" }
+        ],
+        reviewComments: [
+          { required: true, message: "请输入审核意见", trigger: "blur" }
+        ]
+      },
+      statusOptions: [
+        { value: "待审核", label: "待审核" },
+        { value: "已通过", label: "通过" },
+        { value: "已拒绝", label: "不通过" }
+      ]
     };
   },
   created() {
+    this.form.status = "0"; // 设置为待审核状态
     this.getList();
     this.getStudentOptions();
   },
+
   methods: {
+    getStatusLabel(status) {
+      return this.statusOptions.find(option => option.value === status)?.label || '';
+    },
+    handleReview(row) {
+      this.reviewForm = {
+        id: row.id,
+        status: '',
+        reviewComments: '',
+        reviewerId: userStore.id,
+        reviewDate: new Date().toISOString().slice(0, 10)
+      };
+      this.reviewOpen = true;
+    },
+
+    // 取消审核
+    cancelReview() {
+      this.reviewOpen = false;
+      this.reviewForm = {};
+    },
+
+    // 提交审核
+    submitReview() {
+      this.$refs["reviewForm"].validate(valid => {
+        if (valid) {
+          const reviewData = {
+            id: this.reviewForm.id,
+            status: this.reviewForm.status,
+            reviewComments: this.reviewForm.reviewComments,
+            reviewerId: userStore.id,
+            reviewDate: new Date().toISOString().slice(0, 10)
+          };
+
+          reviewApplication(reviewData).then(response => {
+            this.$modal.msgSuccess("审核成功");
+            this.reviewOpen = false;
+            this.getList();
+          });
+        }
+      });
+    },
+    handleBeforeUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isPNG = file.type === 'image/png';
+      const isPDF = file.type === 'application/pdf';
+      const isLt10M = file.size / 1024 / 1024 < 10;
+
+      if (!isJPG && !isPNG && !isPDF) {
+        this.$modal.msgError('上传文件只能是 jpg/png/pdf 格式!');
+        return false;
+      }
+      if (!isLt10M) {
+        this.$modal.msgError('上传文件大小不能超过 10MB!');
+        return false;
+      }
+      return true;
+    },
+
+    // 文件上传成功的回调
+    handleUploadSuccess(response, file, fileList) {
+      if (response.code === 200) {
+        this.fileList = fileList;
+        this.form.supportingDocuments = fileList.map(item => item.response?.fileName || item.name).join(',');
+        this.$modal.msgSuccess("上传成功");
+      } else {
+        this.$modal.msgError(response.msg);
+      }
+    },
+
+    // 移除文件的回调
+    handleRemove(file, fileList) {
+      this.fileList = fileList;
+      this.form.supportingDocuments = fileList.map(item => item.response?.fileName || item.name).join(',');
+    },
     getStudentOptions() {
       listStudent().then(response => {
         this.studentOptions = response.rows;
@@ -257,6 +434,7 @@ export default {
     },
     // 表单重置
     reset() {
+      this.fileList = [];
       this.form = {
         id: null,
         studentId: null,
@@ -299,7 +477,20 @@ export default {
       this.reset();
       const id = row.id || this.ids
       getApplication(id).then(response => {
-        this.form = response.data;
+        const responseData = response.data;  // 修正变量名
+        this.form = {
+          id: responseData.id,
+          studentId: responseData.studentId,
+          applicationDate: responseData.applicationDate,
+          povertyReason: responseData.povertyReason,
+          supportingDocuments: responseData.supportingDocuments
+        };
+        if (this.form.supportingDocuments) {
+          this.fileList = this.form.supportingDocuments.split(',').map(file => ({
+            name: file,
+            url: import.meta.env.VITE_APP_BASE_API + file
+          }));
+        }
         this.open = true;
         this.title = "修改贫困申请";
       });
@@ -309,6 +500,9 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           this.form.reviewerId = userStore.id;
+          if (!this.form.id) {
+            this.form.status = "待审核"; // 使用中文状态
+          }
 
           if (this.form.id != null) {
             updateApplication(this.form).then(response => {
