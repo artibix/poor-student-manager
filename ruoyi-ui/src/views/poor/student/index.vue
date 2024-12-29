@@ -54,18 +54,16 @@
         <el-button icon="refresh" size="default" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-
+    <el-alert
+        title="请在用户管理中添加学生信息"
+        type="info"
+        :closable="false"
+        show-icon>
+      <template #default>
+        如需添加学生信息，请前往 <el-link type="primary" @click="goToUserManagement">系统管理-用户管理</el-link> 进行添加
+      </template>
+    </el-alert>
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="plus"
-          size="default"
-          @click="handleAdd"
-          v-hasPermi="['poor:student:add']"
-        >新增</el-button>
-      </el-col>
       <el-col :span="1.5">
         <el-button
           type="success"
@@ -220,6 +218,9 @@ export default {
     this.getList();
   },
   methods: {
+    goToUserManagement() {
+      this.$router.push('/system/user');
+    },
     /** 查询学生信息列表 */
     getList() {
       this.loading = true;

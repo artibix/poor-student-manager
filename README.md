@@ -49,6 +49,8 @@
 - 访问应用：
   - 前端页面：`http://localhost:80`
   - 后端接口：`http://localhost:8080`
+  - 默认管理员用户名：`admin`
+  - 密码：`admin123`
 
 ## 注意事项
 

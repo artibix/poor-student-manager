@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="学生姓名" prop="studentName">
+      <el-form-item label="学生姓名" prop="studentName" v-if="!isStudent">
         <el-input
-          v-model="queryParams.studentName"
-          placeholder="请输入学生姓名"
-          clearable
-          @keyup.enter.native="handleQuery"
+            v-model="queryParams.studentName"
+            placeholder="请输入学生姓名"
+            clearable
+            @keyup.enter.native="handleQuery"
         />
       </el-form-item>
       <el-form-item label="申请日期" prop="applicationDate">
@@ -163,7 +163,7 @@
     <!-- 添加或修改贫困申请对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="学生" prop="studentId">
+        <el-form-item label="学生" prop="studentId" v-if="!isStudent">
           <el-select v-model="form.studentId" placeholder="请选择学生" clearable>
             <el-option
                 v-for="student in studentOptions"
@@ -259,6 +259,7 @@ export default {
   name: "Application",
   data() {
     return {
+      isStudent: false,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -334,12 +335,26 @@ export default {
     };
   },
   created() {
-    this.form.status = "0"; // 设置为待审核状态
+    this.form.status = "待审核"; // 设置为待审核状态
+
+    this.initUserRole();
     this.getList();
-    this.getStudentOptions();
+    // 只有非学生角色才需要获取学生列表
+    if (!this.isStudent) {
+      this.getStudentOptions();
+    }
   },
 
   methods: {
+
+    initUserRole() {
+      // 判断用户是否为学生角色
+      this.isStudent = userStore.roles.includes('student');
+      if (this.isStudent) {
+        // 如果是学生，直接设置studentId为当前用户ID
+        this.form.studentId = userStore.id;
+      }
+    },
     getStatusLabel(status) {
       return this.statusOptions.find(option => option.value === status)?.label || '';
     },
@@ -437,7 +452,7 @@ export default {
       this.fileList = [];
       this.form = {
         id: null,
-        studentId: null,
+        studentId: this.isStudent ? userStore.id : null, // 如果是学生角色，设置为当前用户ID
         applicationDate: null,
         povertyReason: null,
         supportingDocuments: null,
@@ -499,7 +514,6 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          this.form.reviewerId = userStore.id;
           if (!this.form.id) {
             this.form.status = "待审核";
           }
